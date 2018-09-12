@@ -1,82 +1,88 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { reduxForm } from 'redux-form';
-import { createPost } from '../actions/index';
-import { Link } from 'react-router';
+import { Field, reduxForm } from 'redux-form';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { createPost } from '../actions';
 
 class PostsNew extends Component {
-  static contextTypes = {
-    router: PropTypes.object
-  };
+  renderField(field) {
+    const { meta: { touched, error } } = field;
+    const className=`form-group ${touched && error ? 'has-danger' : ''}`;
 
-  onSubmit(props) {
-    this.props.createPost(props)
-      .then(() => {
-        // blog post has been created, navigate the user to the index
-        // We navigate by calling this.context.router.push with the
-        // new path to navigate to.
-        this.context.router.push('/');
-      });
+    return(
+      <div className={className}>
+        <label>{field.label}</label>
+        <input
+          className="form-control"
+          type="text"
+          {...field.input}
+        />
+        <div className="text-help">
+          {touched ? error : ''}
+        </div>
+      </div>
+    );
+  }
+
+  onSubmit(values) {
+    this.props.createPost(values, () => {
+      this.props.history.push('/');
+    });
   }
 
   render() {
-    const { fields: {title, categories, content}, handleSubmit } = this.props;
+    const { handleSubmit } = this.props;
 
-    return(
+    return (
       <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-        <h3>Create A New Post</h3>
-
-        <div className={`form-group ${title.touched && title.invalid ? 'has-danger' : ''}`}>
-          <label>Title</label>
-          <input type='text' className='form-control' {...title} />
-          <div className='text-help'>
-            {title.touched ? title.error : ''}
-          </div>
-        </div>
-        <div className={`form-group ${categories.touched && categories.invalid ? 'has-danger' : ''}`}>
-          <label>Categories</label>
-          <input type='text' className='form-control' {...categories} />
-          <div className='text-help'>
-            {categories.touched ? categories.error : ''}
-          </div>
-        </div>
-        <div className={`form-group ${content.touched && content.invalid ? 'has-danger' : ''}`}>
-          <label>Content</label>
-          <textarea type='text' className='form-control' {...content} />
-          <div className='text-help'>
-            {content.touched ? content.error : ''}
-          </div>
-        </div>
-        <button type='submit' className='btn btn-primary'>Submit</button>
-        <Link to='/' className='btn btn-danger'>Cancel</Link>
+        <Field
+          label="Title"
+          name="title"
+          component={this.renderField}
+        />
+        <Field
+          label="Categories"
+          name="categories"
+          component={this.renderField}
+        />
+        <Field
+          label="Post Content"
+          name="content"
+          component={this.renderField}
+        />
+        <button type="submit" className="btn btn-primary">Submit</button>
+        <Link className="btn btn-danger" to="/">
+          Cancel
+        </Link>
       </form>
     );
   }
 }
 
-function validate(values) {
+function validate(values) { //values - object that contains all values that user entered into the form
   const errors = {};
 
-  if (!values.title) {
-    errors.title = 'Enter a username';
+  //Validate the inputs from 'values'
+  if (!values.title || values.title.length < 3) {
+    errors.title = "Enter a title that is at least 4 characters"
   }
 
   if (!values.categories) {
-    errors.categories = 'Enter categories';
+    errors.categories = "Enter some categories"
   }
 
   if (!values.content) {
-    errors.content = 'Enter some content';
+    errors.content = "Enter some content please"
   }
 
+  //if we return an empty object from this function Redux thinks that this form is valid
   return errors;
 }
 
-// connect: 1st argument is mapStateToProps, 2nd is mapDispatchToProps
-// reduxForm: 1st is form config, 2nd is mapStateToProps, 3rd is mapDispatchToProps
-
 export default reduxForm({
-  form: 'PostNew',
-  fields: ['title', 'categories', 'content'],
-  validate
-}, null, { createPost })(PostsNew);
+  validate,
+  form: 'PostsNewForm'
+})(
+  connect(null, { createPost })(PostsNew)
+);
+
