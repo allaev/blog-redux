@@ -20,3 +20,5 @@ Running the app:
 > npm install
 > npm start
 ```
+
+![blog-redux_screenshot](https://user-images.githubusercontent.com/34710484/46260239-d63e2600-c4fc-11e8-8057-e6f4bccf923b.png)
