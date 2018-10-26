@@ -1,4 +1,4 @@
-# blog-redux
+# blog-redux ![CI status](https://img.shields.io/badge/style-flat-green.svg?longCache=true&style=flat) ![CI status](https://img.shields.io/badge/top%20language-Javascript-yellow.svg)
 
 A minimalistic Blog App made with React+Redux. Allows to create/delete blog posts.
 
